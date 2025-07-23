@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>360° 動画と写真</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      position: relative;
+      background-color: black;
+      overflow: hidden;
+    }
+    .container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+    .content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 100%;
+      height: 100%;
+    }
+    .content iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .toggle-button {
+      position: absolute;
+      left: 20px;
+      bottom: 20px;
+      background-color: rgba(0, 0, 0, 0.6);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-size: 16px;
+      z-index: 30;
+      border-radius: 25px;
+    }
+    .buttons {
+      position: absolute;
+      right: 20px;
+      bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      z-index: 30;
+    }
+    .buttons .button {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      cursor: pointer;
+    }
+    .buttons .button img {
+      width: 48px;
+      height: 48px;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .buttons .button::before {
+      content: '';
+      display: block;
+      width: 64px;
+      height: 64px;
+      background-color: white;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: -1;
+    }
+    .title {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 24px;
+      color: white;
+      z-index: 30;
+      text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+    }
+    .logo {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 30px;
+      color: white;
+      opacity: 0.5;
+      z-index: 30;
+    }
+    .sidebar {
+      position: fixed;
+      right: -250px;
+      top: 0;
+      width: 250px;
+      height: 100%;
+      background-color: yellow;
+      transition: right 0.3s ease-in-out;
+      z-index: 20;
+      box-shadow: -3px 0 5px rgba(0, 0, 0, 0.3);
+    }
+    .sidebar.open {
+      right: 0;
+    }
+    #messageBox {
+      display: none;
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: white;
+      padding: 20px;
+      width: 300px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+    #iframeCover {
+      display: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 15;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 360°写真 -->
+    <div id="photo" class="content" style="display: block;">
+      <iframe src="https://store.hacosco.com/movies/f9b894eb-0ff8-4f3a-831a-38a7fe8e687b/content?token=b3d3b044b29c0a8157039a5d31c5d7bb" frameborder="0" allowfullscreen allowvr></iframe>
+    </div>
+
+    <!-- 360°動画 -->
+    <div id="video" class="content" style="display: none;">
+      <iframe src="https://store.hacosco.com/movies/b76fd9a5-4507-44c9-8047-148eee9716c6/content?token=f63bef8e62d57604516bdd58b3ea7614" frameborder="0" allowfullscreen allowvr></iframe>
+    </div>
+
+    <!-- iframe カバー -->
+    <div id="iframeCover"></div>
+
+    <!-- タイトル -->
+    <div id="title" class="title">第一経路</div>
+
+    <!-- 右上の「PIKUTON」 -->
+    <div class="logo">PIKUTON</div>
+
+    <!-- 左下の切り替えボタン -->
+    <button id="toggleButton" class="toggle-button">360°動画で表示</button>
+
+    <!-- 右下のボタン -->
+    <div class="buttons">
+      <div class="button" onclick="handleButtonClick('map')">
+        <img src="https://lh3.googleusercontent.com/pw/AP1GczPw8bDbgpD5gQX7qR3rrAkSQiMwudwgjhAw81ZHJkOkJP76uoU6cgvtZ4EF4oiNbmT1QQxMTJAC1VdMiKNLrPRYfe77PRdGq-ptDhzeT32gNOIfAM5W7OJu5utSyyxAQkxQNsiTESYHf3GgICQX4F8V=w64-h64-s-no?authuser=0" alt="Map">
+      </div>
+      <div class="button" id="languageButton" onclick="handleButtonClick('language')">
+        <img id="languageIcon" src="https://lh3.googleusercontent.com/pw/AP1GczO6dfNi6filvn9ArBfI5A52zbmKW3tkREnqdkX3IY5Lq8mKGqGA_J_2wHSoDiE-zMad6p6xS09jUnH3hFTGQF_Wg7RaTB1uBGFLlbyjd0YmmV_BV1LK2Kk4zX3c3JbY9wnUuBCqBOq8SKW6pJmgziPf=w48-h48-s-no?authuser=0" alt="Language">
+      </div>
+      <div class="button" onclick="handleButtonClick('website')">
+        <img src="https://lh3.googleusercontent.com/pw/AP1GczNaGbec9HPxsplxo8eGFP3oZS70j5tqXgMIZUboSP0M8axHLdFZljURz7p1HvKZWCNygEApRbfhKK70c63erDEL8weLmQGdF9bVf_Z8pzvP_SUfQbtwNUk68AEe_w0TgpTu6LZLEruBupmsB3TEfOZS=w64-h64-s-no?authuser=0" alt="Website">
+      </div>
+      <div class="button" onclick="handleButtonClick('info')">
+        <img src="https://lh3.googleusercontent.com/pw/AP1GczNaJFMlCkhR4vmAgoJx-gGxZ0IAMebgQRlIkU4ruFx2e436Clfp3DlqECAcAmyDR4R7bJWVo8hWfwE3flXBWHc2ji8dk_m6yZRgkIjkSpjVWVYB11SbE_qKEZXyqvLSjgbkbbl9j2i0dYiL3DJIZFKZ=w48-h48-s-no?authuser=0" alt="Info">
+      </div>
+    </div>
+
+    <!-- サイドバー -->
+    <div id="sidebar" class="sidebar"></div>
+
+    <!-- メッセージボックス -->
+    <div id="messageBox">
+      <h3>このサイトの説明</h3>
+      <p>ここにサイトとかPIKUTONとかの説明が入ります。ほかにも、観光情報とか入れたり。</p>
+    </div>
+  </div>
+
+  <script>
+    let currentLanguage = 'ja';
+    const sidebar = document.getElementById('sidebar');
+    const languageButton = document.getElementById('languageButton');
+    const languageIcon = document.getElementById('languageIcon');
+    const title = document.getElementById('title');
+    const toggleButton = document.getElementById('toggleButton');
+    const messageBox = document.getElementById('messageBox');
+    const iframeCover = document.getElementById('iframeCover');
+    let isMessageBoxVisible = false;
+
+    function handleButtonClick(action) {
+      if (!sidebar.classList.contains('open')) {
+        sidebar.classList.add('open');
+        iframeCover.style.display = 'block';
+        return;
+      }
+
+      if (action === 'language') {
+        currentLanguage = (currentLanguage === 'ja') ? 'en' : 'ja';
+        languageIcon.src = currentLanguage === 'ja'
+          ? 'https://lh3.googleusercontent.com/pw/AP1GczO6dfNi6filvn9ArBfI5A52zbmKW3tkREnqdkX3IY5Lq8mKGqGA_J_2wHSoDiE-zMad6p6xS09jUnH3hFTGQF_Wg7RaTB1uBGFLlbyjd0YmmV_BV1LK2Kk4zX3c3JbY9wnUuBCqBOq8SKW6pJmgziPf=w48-h48-s-no?authuser=0'
+          : 'https://lh3.googleusercontent.com/pw/AP1GczNVlSPMi2Odl27hIJIdlrZMk6YCKXUWDuclKqzJBmNwIO07W52rMKl-Fj8as87k_SUumipiMo9l1HTvKBGE4-sAmugUVfBLdoKr664sVMGMt1mARrQfhnbuQg2YrSisB1PM_juylzluscREEAZ-qH62=w48-h48-s-no?authuser=0';
+
+        title.innerText = currentLanguage === 'ja' ? '第一経路' : 'First Route';
+        toggleButton.innerText = currentLanguage === 'ja' ? '360°動画で表示' : 'Show in 360° Video';
+      } else if (action === 'map') {
+        window.open('https://maps.app.goo.gl/Au2tJDXFGKSPhvAu8', '_blank');
+      } else if (action === 'website') {
+        window.open('https://inuyama-sougou.jp/', '_blank');
+      } else if (action === 'info') {
+        isMessageBoxVisible = !isMessageBoxVisible;
+        messageBox.style.display = isMessageBoxVisible ? 'block' : 'none';
+      }
+    }
+
+    document.addEventListener('click', (e) => {
+      if (
+        !sidebar.contains(e.target) &&
+        !e.target.closest('.buttons') &&
+        !e.target.closest('#toggleButton') &&
+        !e.target.closest('#title') &&
+        !e.target.closest('.logo')
+      ) {
+        sidebar.classList.remove('open');
+        iframeCover.style.display = 'none';
+      }
+    });
+
+    iframeCover.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      iframeCover.style.display = 'none';
+    });
+
+    toggleButton.addEventListener('click', () => {
+      const photo = document.getElementById('photo');
+      const video = document.getElementById('video');
+      if (photo.style.display === 'none') {
+        photo.style.display = 'block';
+        video.style.display = 'none';
+        toggleButton.innerText = currentLanguage === 'ja' ? '360°動画で表示' : 'Show in 360° Video';
+      } else {
+        photo.style.display = 'none';
+        video.style.display = 'block';
+        toggleButton.innerText = currentLanguage === 'ja' ? '360°写真で表示' : 'Show in 360° Photo';
+      }
+    });
+  </script>
+</body>
+</html>
